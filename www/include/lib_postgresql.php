@@ -1,24 +1,24 @@
 <?php
 
-	$GLOBALS['pg_conns'] = array();
+	$GLOBALS['postgresql_conns'] = array();
 
-	$GLOBALS['timings']['pg_conns_count']	= 0;
-	$GLOBALS['timings']['pg_conns_time']	= 0;
-	$GLOBALS['timings']['pg_queries_count']	= 0;
-	$GLOBALS['timings']['pg_queries_time']	= 0;
-	$GLOBALS['timings']['pg_rows_count']	= 0;
-	$GLOBALS['timings']['pg_rows_time']	= 0;
+	$GLOBALS['timings']['postgresql_conns_count']	= 0;
+	$GLOBALS['timings']['postgresql_conns_time']	= 0;
+	$GLOBALS['timings']['postgresql_queries_count']	= 0;
+	$GLOBALS['timings']['postgresql_queries_time']	= 0;
+	$GLOBALS['timings']['postgresql_rows_count']	= 0;
+	$GLOBALS['timings']['postgresql_rows_time']	= 0;
 
-	$GLOBALS['timing_keys']['pg_conns']	= 'DB Connections';
-	$GLOBALS['timing_keys']['pg_queries']	= 'DB Queries';
-	$GLOBALS['timing_keys']['pg_rows']	= 'DB Rows Returned';
+	$GLOBALS['timing_keys']['postgresql_conns']	= 'DB Connections';
+	$GLOBALS['timing_keys']['postgresql_queries']	= 'DB Queries';
+	$GLOBALS['timing_keys']['postgresql_rows']	= 'DB Rows Returned';
 
 	#################################################################
 
-	function pg_init(){
+	function postgresql_init(){
 
 		if (!function_exists('pg_connect')){
-			die("[lib_pg] requires the PostgreSQL PHP extension\n");
+			die("[lib_postgresql] requires the PostgreSQL PHP extension\n");
 		}
 
 		#
@@ -28,32 +28,35 @@
 		# being down.
 		#
 
-		if ($GLOBALS['cfg']['pg_main']['auto_connect']){
-			_pg_connect('main', null);
+		if ($GLOBALS['cfg']['postgresql_main']['auto_connect']){
+			_postgresql_connect('main', null);
 		}
 	}
 
 	#################################################################
+	function postgresql_insert($tbl, $hash){			return _postgresql_insert($tbl, $hash, 'main', null); }
 
-	function pg_fetch($sql){				return _pg_fetch($sql, 'main', null); }
-	function pg_fetch_slave($sql){				return _pg_fetch_slave($sql, 'main_slaves'); }
-	function pg_fetch_users($k, $sql){			return _pg_fetch($sql, 'users', $k); }
+	function postgresql_fetch($sql){				return _postgresql_fetch($sql, 'main', null); }
+	function postgresql_fetch_slave($sql){				return _postgresql_fetch_slave($sql, 'main_slaves'); }
+	function postgresql_fetch_users($k, $sql){			return _postgresql_fetch($sql, 'users', $k); }
 
-	function pg_fetch_paginated($sql, $args){		return _pg_fetch_paginated($sql, $args, 'main', null); }
-	function pg_fetch_paginated_users($k, $sql, $args){	return _pg_fetch_paginated($sql, $args, 'users', $k); }
+	function postgresql_fetch_paginated($sql, $args){		return _postgresql_fetch_paginated($sql, $args, 'main', null); }
+	function postgresql_fetch_paginated_users($k, $sql, $args){	return _postgresql_fetch_paginated($sql, $args, 'users', $k); }
+
+	function postgresql_write($sql){				return _postgresql_write($sql, 'main', null); }
 
 	#################################################################
 
 
-	function _pg_connect($cluster, $shard){
+	function _postgresql_connect($cluster, $shard){
 
-		$cluster_key = _pg_cluster_key($cluster, $shard);
+		$cluster_key = _postgresql_cluster_key($cluster, $shard);
 
-		$host = $GLOBALS['cfg']["pg_{$cluster}"]["host"];
-		$user = $GLOBALS['cfg']["pg_{$cluster}"]["user"];
-		$pass = $GLOBALS['cfg']["pg_{$cluster}"]["pass"];
-		$name = $GLOBALS['cfg']["pg_{$cluster}"]["name"];
-		$port = $GLOBALS['cfg']["pg_{$cluster}"]["port"];
+		$host = $GLOBALS['cfg']["postgresql_{$cluster}"]["host"];
+		$user = $GLOBALS['cfg']["postgresql_{$cluster}"]["user"];
+		$pass = $GLOBALS['cfg']["postgresql_{$cluster}"]["pass"];
+		$name = $GLOBALS['cfg']["postgresql_{$cluster}"]["name"];
+		$port = $GLOBALS['cfg']["postgresql_{$cluster}"]["port"];
 
 
 		if ($shard){
@@ -73,7 +76,7 @@
 
 		$connection_string = "host=" . $host . " port=" . $port . " dbname=" . $name . " user=" . $user . " password=" . $pass;
 
-		$GLOBALS['pg_conns'][$cluster_key] = pg_connect($connection_string);
+		$GLOBALS['postgresql_conns'][$cluster_key] = pg_connect($connection_string);
 
 		$end = microtime_ms();
 
@@ -83,15 +86,15 @@
 		# log
 		#
 
-		log_notice('pg', "DB-$cluster_key: Connect", $end-$start);
+		log_notice('postgresql', "DB-$cluster_key: Connect", $end-$start);
 
-		if (!$GLOBALS['pg_conns'][$cluster_key] || $GLOBALS['cfg']['admin_flags_no_db']){
+		if (!$GLOBALS['postgresql_conns'][$cluster_key] || $GLOBALS['cfg']['admin_flags_no_db']){
 
 			log_fatal("Connection to database cluster '$cluster_key' failed");
 		}
 
-		$GLOBALS['timings']['pg_conns_count']++;
-		$GLOBALS['timings']['pg_conns_time'] += $end-$start;
+		$GLOBALS['timings']['postgresql_conns_count']++;
+		$GLOBALS['timings']['postgresql_conns_time'] += $end-$start;
 
 
 	}
@@ -99,25 +102,25 @@
 
 	#################################################################
 
-	function _pg_query($sql, $cluster, $shard){
+	function _postgresql_query($sql, $cluster, $shard){
 
-		$cluster_key = _pg_cluster_key($cluster, $shard);
+		$cluster_key = _postgresql_cluster_key($cluster, $shard);
 
-		if (!$GLOBALS['pg_conns'][$cluster_key]){
-			_pg_connect($cluster, $shard);
+		if (!$GLOBALS['postgresql_conns'][$cluster_key]){
+			_postgresql_connect($cluster, $shard);
 		}
 
 		#$trace = _pg_callstack();
 		#$use_sql = _pg_comment_query($sql, $trace);
 
 		$start = microtime_ms();
-		$result = pg_query($GLOBALS['pg_conns'][$cluster_key], $sql);
+		$result = pg_query($GLOBALS['postgresql_conns'][$cluster_key], $sql);
 		$end = microtime_ms();
 
-		$GLOBALS['timings']['pg_queries_count']++;
-		$GLOBALS['timings']['pg_queries_time'] += $end-$start;
+		$GLOBALS['timings']['postgresql_queries_count']++;
+		$GLOBALS['timings']['postgresql_queries_time'] += $end-$start;
 
-		log_notice('pg', "DB-$cluster_key: $sql ($trace)", $end-$start);
+		log_notice('postgresql', "DB-$cluster_key: $sql ($trace)", $end-$start);
 
 		#
 		# build result
@@ -154,9 +157,20 @@
 
 	#################################################################
 
-	function _pg_fetch($sql, $cluster, $shard){
+	function _postgresql_insert($tbl, $hash, $cluster, $shard){
 
-		$ret = _pg_query($sql, $cluster, $shard);
+		$fields = array_keys($hash);
+		#return _postgresql_write("INSERT INTO $tbl (`".implode('`,`',$fields)."`) VALUES ('".implode("','",$hash)."')", $cluster, $shard);
+
+		return _postgresql_write("INSERT INTO $tbl (".implode(",",$fields).") VALUES ('".implode("','",$hash)."')", $cluster, $shard);
+
+	}
+
+	#################################################################
+
+	function _postgresql_fetch($sql, $cluster, $shard){
+
+		$ret = _postgresql_query($sql, $cluster, $shard);
 
 		if (!$ret['ok']) return $ret;
 
@@ -173,8 +187,8 @@
 			$count++;
 		}
 		$end = microtime_ms();
-		$GLOBALS['timings']['pg_rows_count'] += $count;
-		$GLOBALS['timings']['pg_rows_time'] += $end-$start;
+		$GLOBALS['timings']['postgresql_rows_count'] += $count;
+		$GLOBALS['timings']['postgresql_rows_time'] += $end-$start;
 
 		return $out;
 	}
@@ -182,7 +196,7 @@
 
 	#################################################################
 
-	function _pg_fetch_paginated($sql, $args, $cluster, $shard){
+	function _postgresql_fetch_paginated($sql, $args, $cluster, $shard){
 
 		#
 		# Setup some defaults
@@ -203,8 +217,8 @@
 
 		if (!$calc_found_rows){
 
-			$count_sql = _pg_count_sql($sql, $args);
-			$ret = _pg_fetch($count_sql, $cluster, $shard);
+			$count_sql = _postgresql_count_sql($sql, $args);
+			$ret = _postgresql_fetch($count_sql, $cluster, $shard);
 			if (!$ret['ok']) return $ret;
 
 			$total_count = intval(array_pop($ret['rows'][0]));
@@ -255,7 +269,7 @@
 			$sql = preg_replace('/^\s*SELECT\s+/', 'SELECT SQL_CALC_FOUND_ROWS ', $sql);
 		}
 
-		$ret = _pg_fetch($sql, $cluster, $shard);
+		$ret = _postgresql_fetch($sql, $cluster, $shard);
 
 
 		#
@@ -264,7 +278,7 @@
 
 		if ($calc_found_rows){
 
-			$ret2 = _pg_fetch("SELECT FOUND_ROWS()", $cluster, $shard);
+			$ret2 = _postgresql_fetch("SELECT FOUND_ROWS()", $cluster, $shard);
 
 			$total_count = intval(array_pop($ret2['rows'][0]));
 			$page_count = ceil($total_count / $per_page);
@@ -302,17 +316,29 @@
 			$ret['pagination']['last'] = 0;
 		}
 
-		if ($GLOBALS['cfg']['pagination_assign_smarty_variable']){
-			$GLOBALS['smarty']->assign('pagination', $ret['pagination']);
-		}
-
 		return $ret;
 	}
 
 
 	#################################################################
 
-	function _pg_count_sql($sql, $args){
+	function _postgresql_write($sql, $cluster, $shard){
+
+		$cluster_key = _postgresql_cluster_key($cluster, $shard);
+		$ret = _postgresql_query($sql, $cluster, $shard);
+
+		if (!$ret['ok']) return $ret;
+
+		return array(
+			'ok'		=> 1,
+			#'affected_rows'	=> mysql_affected_rows($GLOBALS['db_conns'][$cluster_key]),
+			#'insert_id'	=> mysql_insert_id($GLOBALS['db_conns'][$cluster_key]),
+		);
+	}
+
+	#################################################################
+
+	function _postgresql_count_sql($sql, $args){
 
 		# remove any ORDER'ing & LIMIT'ing
 		$sql = preg_replace('/ ORDER BY .*$/', '', $sql);
@@ -331,14 +357,14 @@
 
 	#################################################################
 
-	function _pg_count_sql_from($m){
+	function _postgresql_count_sql_from($m){
 
 		return "SELECT COUNT($m[1]) FROM";
 	}
 
 	#################################################################
 
-	function _pg_cluster_key($cluster, $shard){
+	function _postgresql_cluster_key($cluster, $shard){
 
 		return $shard ? "{$cluster}-{$shard}" : $cluster;
 	}

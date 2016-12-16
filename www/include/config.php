@@ -40,6 +40,16 @@
 		),
 	);
 
+	# PostgreSQL
+
+	$GLOBALS['cfg']['postgresql_main'] = array(
+		'host'	=> 'localhost',
+		'name'	=> 'flamework',
+		'user'	=> 'micah',
+		'pass' => '', #getenv('pg_main_password'),
+		'port' => '5432',
+		'auto_connect' => 0,
+	);
 
 	# hard coding this URL will ensure it works in cron mode too
 

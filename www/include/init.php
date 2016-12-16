@@ -322,7 +322,7 @@
   #loadlib('error');
   loadlib('sanitize');
   loadlib('filter');
-  loadlib('pg');
+  loadlib('postgresql');
   loadlib('api');
   #loadlib('db');
   #loadlib('dbtickets');
@@ -414,7 +414,7 @@
 
   # initialize a database connection
   #db_init();
-  pg_init();
+  postgresql_init();
 
   $end = microtime_ms();
   $time = $end - $start;

@@ -31,7 +31,7 @@
 			$hash[$k] = AddSlashes($v);
 		}
 
-		$ret = pg_insert('users', $hash);
+		$ret = postgresql_insert('users', $hash);
 
 		if (!$ret['ok']) return $ret;
 
@@ -64,7 +64,7 @@
 			$hash[$k] = AddSlashes($v);
 		}
 
-		$ret = pg_update('users', $hash, "id={$user['id']}");
+		$ret = postgresql_update('users', $hash, "id={$user['id']}");
 
 		if (!$ret['ok']) return $ret;
 
@@ -109,7 +109,7 @@
 
 	function users_get_by_id($id){
 
-		$user = pg_fetch("SELECT * FROM users WHERE id=".intval($id));
+		$user = postgresql_fetch("SELECT * FROM users WHERE id=".intval($id));
 
 		#cache_set("USER-{$user['id']}", $user);
 
@@ -122,7 +122,7 @@
 
 		$enc_email = AddSlashes($email);
 
-		return pg_fetch("SELECT * FROM users WHERE email='{$enc_email}'");
+		return postgresql_fetch("SELECT * FROM users WHERE email='{$enc_email}'");
 	}
 
 	#################################################################
@@ -152,7 +152,9 @@
 
 		$enc_email = AddSlashes($email);
 
-		$row = pg_fetch("SELECT id FROM users WHERE email='{$enc_email}' AND deleted=0");
+		$row = postgresql_fetch("SELECT id FROM users WHERE email='{$enc_email}' AND deleted=0");
+		#api_output_error(500, $row);
+		$row = $row['rows'][0];
 
 		return $row['id'] ? 1 : 0;
 	}
@@ -163,7 +165,9 @@
 
 		$enc_username = AddSlashes($username);
 
-		$row = pg_fetch("SELECT id FROM users WHERE username='{$enc_username}' AND deleted=0");
+		$row = postgresql_fetch("SELECT id FROM users WHERE username='{$enc_username}' AND deleted=0");
+		$row = $row['rows'][0];
+
 		return $row['id'] ? 1 : 0;
 	}
 
@@ -173,7 +177,7 @@
 
 		$enc_code = AddSlashes($code);
 
-		$row = pg_fetch("SELECT * FROM users_password_reset WHERE reset_code='{$enc_code}'");
+		$row = postgresql_fetch("SELECT * FROM users_password_reset WHERE reset_code='{$enc_code}'");
 
 		if (!$row){
 			return null;
@@ -186,7 +190,7 @@
 
 	function users_purge_password_reset_codes(&$user){
 
-		$rsp = pg_write("DELETE FROM users_password_reset WHERE user_id=$user[id]");
+		$rsp = postgresql_write("DELETE FROM users_password_reset WHERE user_id=$user[id]");
 
 		return $rsp['ok'];
 	}
@@ -223,14 +227,14 @@
 			$code = random_string(32);
 			$enc_code = AddSlashes($code);
 
-			if (pg_single(pg_fetch("SELECT 1 FROM users_password_reset WHERE reset_code='{$enc_code}'"))){
+			if (pg_fetch("SELECT 1 FROM users_password_reset WHERE reset_code='{$enc_code}'")){
 				$code = '';
 			}
 
 			break;
 		}
 
-		$rsp = pg_insert('users_password_reset', array(
+		$rsp = postgresql_insert('users_password_reset', array(
 			'user_id'	=> $user['id'],
 			'reset_code'	=> $enc_code,
 			'created'	=> time(),
