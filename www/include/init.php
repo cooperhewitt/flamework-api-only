@@ -318,7 +318,7 @@
   loadlib('features');
   loadlib('passwords');
   #loadlib('auth');
-  #loadlib('log');		# logging comes first, so that other modules can log during startup
+  loadlib('log');		# logging comes first, so that other modules can log during startup
   #loadlib('error');
   loadlib('sanitize');
   loadlib('filter');
