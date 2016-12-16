@@ -1,0 +1,6 @@
+{
+  "name": "flamework-api-only",
+  "description": "A barebones, flamework inspired API",
+  "repository": "https://github.com/micahwalter/flamework-api-only",
+  "addons": []
+}
