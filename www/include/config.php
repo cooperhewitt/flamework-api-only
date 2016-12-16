@@ -166,20 +166,7 @@
 
 	$GLOBALS['cfg']['api_auth_type'] = 'oauth2';
 	$GLOBALS['cfg']['api_oauth2_require_authentication_header'] = 0;
-	$GLOBALS['cfg']['api_oauth2_allow_get_parameters'] = 0;
-
-	# API site keys (TTL is measured in seconds)
-
-	$GLOBALS['cfg']['enable_feature_api_site_keys'] = 1;
-	$GLOBALS['cfg']['enable_feature_api_site_tokens'] = 1;
-
-	$GLOBALS['cfg']['api_site_keys_ttl'] = 28800;		# 8 hours
-	$GLOBALS['cfg']['api_site_tokens_ttl'] = 28000;		# 8 hours
-	$GLOBALS['cfg']['api_site_tokens_user_ttl'] = 3600;	# 1 hour
-
-	$GLOBALS['cfg']['api_explorer_keys_ttl'] = 28800;		# 8 hours
-	$GLOBALS['cfg']['api_explorer_tokens_ttl'] = 28000;		# 8 hours
-	$GLOBALS['cfg']['api_explorer_tokens_user_ttl'] = 28000;	# 8 hours
+	$GLOBALS['cfg']['api_oauth2_allow_get_parameters'] = 1;
 
 	# API pagination
 
