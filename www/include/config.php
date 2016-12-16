@@ -43,11 +43,11 @@
 	# PostgreSQL
 
 	$GLOBALS['cfg']['postgresql_main'] = array(
-		'host'	=> 'localhost',
-		'name'	=> 'flamework',
-		'user'	=> 'micah',
-		'pass' => '', #getenv('pg_main_password'),
-		'port' => '5432',
+		'host'	=> getenv('postgresql_main_host'),
+		'name'	=> getenv('postgresql_main_name'),
+		'user'	=> getenv('postgresql_main_username'),
+		'pass' => getenv('postgresql_main_password'),
+		'port' => getenv('postgresql_main_port'), # 5432
 		'auto_connect' => 0,
 	);
 
