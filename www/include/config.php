@@ -220,6 +220,6 @@
 	);
 
 	### change this to a secrets File
-	$GLOBALS['cfg']['crypto_password_secret'] = '1234567890';
+	$GLOBALS['cfg']['crypto_password_secret'] = getenv('crypto_password_secret');
 
 	# the end
