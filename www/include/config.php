@@ -219,5 +219,7 @@
 		'methods',
 	);
 
+	### change this to a secrets File
+	$GLOBALS['cfg']['crypto_password_secret'] = '1234567890';
 
 	# the end

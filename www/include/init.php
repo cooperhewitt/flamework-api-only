@@ -316,7 +316,7 @@
 	$start = microtime_ms();
 
   loadlib('features');
-  #loadlib('passwords');
+  loadlib('passwords');
   #loadlib('auth');
   #loadlib('log');		# logging comes first, so that other modules can log during startup
   #loadlib('error');

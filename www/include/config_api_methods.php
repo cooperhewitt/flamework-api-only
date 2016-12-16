@@ -32,6 +32,36 @@
 			"library" => "api_test"
 		),
 
+		#### Users
+
+		"users.createUser" => array(
+			"description" => "Create a new user account",
+			"documented" => 1,
+			"enabled" => 1,
+			"library" => "api_users",
+			"parameters" => array(
+				array(
+					"name" => "username",
+					"description" => "Your desired username",
+					"required" => 1,
+					"documented" => 1
+				),
+				array(
+					"name" => "email",
+					"description" => "Your email address",
+					"required" => 1,
+					"documented" => 1
+				),
+				array(
+					"name" => "password",
+					"description" => "Your desired password",
+					"required" => 1,
+					"documented" => 1
+				),
+			),
+		),
+
+
 	), $GLOBALS['cfg']['api']['methods']);
 
 	########################################################################

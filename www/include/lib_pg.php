@@ -1,5 +1,5 @@
 <?php
-	
+
 	$GLOBALS['pg_conns'] = array();
 
 	$GLOBALS['timings']['pg_conns_count']	= 0;
